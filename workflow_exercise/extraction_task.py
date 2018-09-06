@@ -1,8 +1,9 @@
 from urllib.parse import urlparse
 from urllib.request import urlopen, Request
-from luigi.format import UTF8
+
 import bs4
 import luigi
+from luigi.format import UTF8
 
 
 class ExtractionTask(luigi.Task):
@@ -26,7 +27,7 @@ class ExtractionTask(luigi.Task):
             links = [link["href"] for link in soup.findAll("a") if link.get("href")]
             with self.output().open("w") as f:
                 for link in links:
-                    f.write(f"{link}\n") if "://" or "#" in link else f.write(f"{domain}{link}\n")
+                    f.write(f"{link}\n") if r"://" in link else f.write(f"{domain}{link}\n")
 
     def output(self):
-        return luigi.LocalTarget(f"output/first/{str(self.url).replace('/', '-')}.txt" , format=UTF8)
+        return luigi.LocalTarget(f"tmp/first/{str(self.url).replace('/', '-')}.txt", format=UTF8)

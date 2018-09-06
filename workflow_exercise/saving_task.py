@@ -13,9 +13,9 @@ class SavingTask(luigi.Task):
     def run(self):
         links = []
         for _input in self.input():
-           with _input.open("r") as f:
-               for line in f:
-                   links.append(line.strip())
+            with _input.open("r") as f:
+                for line in f:
+                    links.append(line.strip())
 
         counted_links = Counter(links)
 
@@ -24,7 +24,4 @@ class SavingTask(luigi.Task):
                 f.write(f"{k} {v}\n")
 
     def output(self):
-        return luigi.LocalTarget("output/second/counted-links.txt")
-
-
-
+        return luigi.LocalTarget("tmp/second/counted-links.txt")
