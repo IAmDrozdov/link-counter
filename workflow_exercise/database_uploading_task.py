@@ -12,7 +12,7 @@ class DatabaseUploadingTask(luigi.Task):
         return SavingTask(self.urls)
 
     def run(self):
-        with pymysql.connect(
+        with pymysql.connect(host="db",
                              user="mysqluser",
                              password="mysqlpassword",
                              db="links") as cursor, self.input().open("r") as f:

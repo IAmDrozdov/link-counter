@@ -20,6 +20,15 @@ services:
       MYSQL_PASSWORD: mysqlpassword
       MYSQL_ROOT_PASSWORD: password
 
+  app:
+    build: .
+    links:
+    - db
+    - scheduler
+    depends_on:
+    - db
+    - scheduler
+
   adminer:
     image: adminer
     restart: always
