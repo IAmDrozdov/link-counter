@@ -24,4 +24,4 @@ class SavingTask(luigi.Task):
                 f.write(f"{k} {v}\n")
 
     def output(self):
-        return luigi.LocalTarget("tmp/second/counted-links.txt")
+        return luigi.LocalTarget("/tmp/second/counted-links.txt")

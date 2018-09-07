@@ -6,13 +6,15 @@ from saving_task import SavingTask
 class DatabaseUploadingTask(luigi.Task):
     urls = luigi.ListParameter()
 
+    # urls = ["https://vk.com", "https://google.com", "https://vk.com/feed"]
+
     def requires(self):
         return SavingTask(self.urls)
 
     def run(self):
         with pymysql.connect(host='localhost',
-                             user='root',
-                             password='1111',
+                             user='mysqluser',
+                             password='mysqlpassword',
                              db='links') as cursor, self.input().open("r") as f:
             for line in f:
                 url, count = line.split()
@@ -21,7 +23,3 @@ class DatabaseUploadingTask(luigi.Task):
                     cursor.execute(sql)
                 except pymysql.err.DataError as e:
                     print(e)
-
-
-if __name__ == "__main__":
-    luigi.run()

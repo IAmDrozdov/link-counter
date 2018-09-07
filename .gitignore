@@ -1,4 +1,3 @@
 venv/
 .idea/
 workflow_exercise/__pycache__/
-workflow_exercise/output/

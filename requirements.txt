@@ -1,3 +1,4 @@
 luigi
 pymysql
 beautifulsoup4
+html5lib
