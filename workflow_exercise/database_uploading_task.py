@@ -12,10 +12,10 @@ class DatabaseUploadingTask(luigi.Task):
         return SavingTask(self.urls)
 
     def run(self):
-        with pymysql.connect(host='localhost',
-                             user='mysqluser',
-                             password='mysqlpassword',
-                             db='links') as cursor, self.input().open("r") as f:
+        with pymysql.connect(
+                             user="mysqluser",
+                             password="mysqlpassword",
+                             db="links") as cursor, self.input().open("r") as f:
             for line in f:
                 url, count = line.split()
                 sql = f"INSERT INTO links (url, entries) values ('{url}',{count})"
