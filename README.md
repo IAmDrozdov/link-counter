@@ -18,7 +18,15 @@ Dependencies
 - Docker-compose 1.22.x
 - Mysql 5.7
 
-In this application using own MySQL user, but you can change in in workflow_exercise/database_uploading_task.py. Database schema locating in db/init.sql.
+In this application using own MySQL configuration with:
+
+- username = mysqluser
+- password = mysqlpassword
+- root name = root
+- root password = password
+- Database schema locating in db/init.sql.
+ 
+But usernames and passwords you can change in in workflow_exercise/database_uploading_task.py.
 
 Running
 -
