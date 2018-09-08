@@ -11,7 +11,7 @@ class DatabaseUploadingTask(luigi.Task):
 
     def run(self):
         with pymysql.connect(host="db",
-                             port="3306",
+                             port=3306,
                              user="mysqluser",
                              password="mysqlpassword",
                              db="links") as cursor, self.input().open("r") as f:
