@@ -32,6 +32,7 @@ Running
 
 ```bash
 git clone https://github.com/IAmDrozdov/link-counter.git
+cd link-counter
 docker build -t app .
 docker run --local-scheduler app https://google.com
 ```
