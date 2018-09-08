@@ -15,5 +15,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     luigi.build([DatabaseUploadingTask(args.urls)],
                 workers=len(args.urls),
-                local_scheduler=False,
-                scheduler_host="scheduler")
+                local_scheduler=True,
+                # scheduler_host="scheduler"
+                )
