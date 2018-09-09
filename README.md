@@ -42,32 +42,42 @@ Running
 git clone https://github.com/IAmDrozdov/link-counter.git
 cd link-counter
 docker build -t app .
-docker run --local-scheduler app https://google.com
+docker run app https://google.com
 ```
-!You can enter arbitrary number of URLs.
+**!You can enter arbitrary number of URLs.**
 
 ### External configuration
 
 #### Running with central scheduler
 
-By default centralized scheduler is turned of. To turn in ot go to workflow_exercise/__main__.py and set local_scheduler=True.
-And then rebuild it and run: 
+To run application with centralized scheduler first turn on luigid:
 ```bash
-docker build -t app .
 luigid
-docker run app https://google.com
+```
+And then:
+```bash
+docker run app --scheduler centralized https://google.com
 ```
 Now you can go to <https://localhost:8082> and se visualisation of processing.
+
 #### Using docker-compose
 
-To use docker-compose with centralized scheduler you will need also uncomment 19 row in  workflow_exercise/__main__.py
-and also rebuild:
 ```bash
-docker build -t app .
-docker-compose up -d
-docker run --network=workflow_exercise_default app https://google.com
+docker-compose up
+docker run --network=linknet  app --host compose  https://google.com
 ```
- There is you can also switch between local and centralized schedulers.
+There is you can also switch between local and centralized schedulers.
+ 
+ 
+ #### Issues
+ 
+ When you run ```docker-compose up``` and see ```Error starting userland proxy: listen tcp0.0.0.0:3306: bind: address already in use```.
+ Run: 
+ ```bash
+ sudo service mysql stop
+docker-compose down
+docker-compose up
+ ```
  
  API
  -
