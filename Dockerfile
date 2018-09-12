@@ -82,5 +82,4 @@ RUN pip3 install -r requirements.txt
 
 EXPOSE 9870 9000 8088 8025 8030 8050
 
-RUN tail -f /dev/null
 ENTRYPOINT ["python3", "src/__main__.py"]

@@ -16,11 +16,10 @@ class SavingTask(PySparkTask):
 
         df = sql_context.read.parquet("/tmp/extracted/*.parquet")
 
-        df\
-            .groupBy("url")\
-            .count()\
-            .write\
-            .parquet(self.output().path)
+        df \
+            .groupBy("url") \
+            .count() \
+            .write.parquet(self.output().path)
 
     def output(self):
         return HdfsTarget("/tmp/saved/counted-links.parquet")
