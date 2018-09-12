@@ -1,27 +1,26 @@
-from collections import Counter
-
 import luigi
-from extraction_task import ExtractionTask
+from extraction_task import ExtractingTask
+from luigi.contrib.hdfs import HdfsTarget
+from luigi.contrib.spark import PySparkTask
+from pyspark import SQLContext
 
 
-class SavingTask(luigi.Task):
+class SavingTask(PySparkTask):
     urls = luigi.ListParameter()
 
     def requires(self):
-        return [ExtractionTask(url) for url in self.urls]
+        return [ExtractingTask(url=url) for url in self.urls]
 
-    def run(self):
-        links = []
-        for _input in self.input():
-            with _input.open("r") as f:
-                for line in f:
-                    links.append(line.strip())
+    def main(self, sc, *args):
+        sql_context = SQLContext(sc)
 
-        counted_links = Counter(links)
+        df = sql_context.read.parquet("/tmp/extracted/*.parquet")
 
-        with self.output().open("w") as f:
-            for k, v in counted_links.items():
-                f.write(f"{k} {v}\n")
+        df\
+            .groupBy("url")\
+            .count()\
+            .write\
+            .parquet(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget("/tmp/second/counted-links.txt")
+        return HdfsTarget("/tmp/saved/counted-links.parquet")

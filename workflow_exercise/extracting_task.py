@@ -10,7 +10,7 @@ from pyspark import SQLContext
 from pyspark.sql.types import Row
 
 
-class ExtractionTask(PySparkTask):
+class ExtractingTask(PySparkTask):
     url = luigi.Parameter()
 
     def _get_domain(self):
@@ -34,12 +34,9 @@ class ExtractionTask(PySparkTask):
             raw_links = self._extract_links(html)
             domain = self._get_domain()
             sql_context = SQLContext(sc)
-            df = sql_context.createDataFrame(list(map(lambda x: Row(url=f"{domain}{x}" if r"://" not in x else x), raw_links)))
+            df = sql_context \
+                .createDataFrame(list(map(lambda x: Row(url=f"{domain}{x}" if r"://" not in x else x), raw_links)))
             df.write.parquet(self.output().path)
 
     def output(self):
-        return HdfsTarget(f"/tmp/first/{self.url.replace('/', '-').replace(':', '')}")
-
-
-if __name__ == "__main__":
-    luigi.build([ExtractionTask(url="https://google.com")], local_scheduler=True)
+        return HdfsTarget(f"/tmp/extracted/{self.url.replace('/', '-').replace(':', '')}.parquet")
