@@ -4,19 +4,26 @@ from urllib.request import urlopen, Request
 
 import bs4
 import luigi
-from luigi.format import UTF8
+from luigi.contrib.hdfs import HdfsTarget
+from luigi.contrib.spark import PySparkTask
+from pyspark import SQLContext
+from pyspark.sql.types import Row
 
 
-class ExtractionTask(luigi.Task):
+class ExtractionTask(PySparkTask):
     url = luigi.Parameter()
 
     def _get_domain(self):
         parsed_url = urlparse(self.url)
         return "://".join([parsed_url.scheme, parsed_url.netloc])
 
-    def run(self):
+    @staticmethod
+    def _extract_links(html):
+        soup = bs4.BeautifulSoup(html, features="html5lib")
+        return list([link["href"].strip() for link in soup.findAll("a") if link.get("href")])
+
+    def main(self, sc, *args):
         try:
-            domain = self._get_domain()
             request = Request(self.url)
             html = urlopen(request)
         except (ValueError, HTTPError):
@@ -24,11 +31,15 @@ class ExtractionTask(luigi.Task):
             with self.output().open("w") as f:
                 pass
         else:
-            soup = bs4.BeautifulSoup(html, features="html5lib")
-            links = [link["href"] for link in soup.findAll("a") if link.get("href")]
-            with self.output().open("w") as f:
-                for link in links:
-                    f.write(f"{link}\n") if r"://" in link else f.write(f"{domain}{link}\n")
+            raw_links = self._extract_links(html)
+            domain = self._get_domain()
+            sql_context = SQLContext(sc)
+            df = sql_context.createDataFrame(list(map(lambda x: Row(url=f"{domain}{x}" if r"://" not in x else x), raw_links)))
+            df.write.parquet(self.output().path)
 
     def output(self):
-        return luigi.LocalTarget(f"/tmp/first/{str(self.url).replace('/', '-')}.txt", format=UTF8)
+        return HdfsTarget(f"/tmp/first/{self.url.replace('/', '-').replace(':', '')}")
+
+
+if __name__ == "__main__":
+    luigi.build([ExtractionTask(url="https://google.com")], local_scheduler=True)

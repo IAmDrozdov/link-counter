@@ -1,5 +1,4 @@
 import argparse
-
 import luigi
 from database_uploading_task import DatabaseUploadingTask
 
