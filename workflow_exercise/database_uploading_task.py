@@ -20,5 +20,5 @@ class DatabaseUploadingTask(PySparkTask):
                       table="links",
                       properties={"user": "mysqluser",
                                   "password": "mysqlpassword",
-                                  "driver": ""},
+                                  "driver": "com.mysql.cj.jdbc.Driver"},
                       mode="append")
