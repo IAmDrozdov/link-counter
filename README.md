@@ -64,7 +64,7 @@ Now you can go to <https://localhost:8082> and se visualisation of processing.
 
 ```bash
 docker-compose up
-docker run --network=linknet  app --host compose  https://google.com
+docker run --network=workflow_exercise_default  app --host compose  https://google.com
 ```
 There is you can also switch between local and centralized schedulers.
  

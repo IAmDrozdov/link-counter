@@ -11,18 +11,34 @@ from pyspark.sql.types import Row
 
 
 class ExtractingTask(PySparkTask):
+    """
+    Task for scraping links from URL and saving them to HDFS.
+    :arg url : URL for current task.
+    """
     url = luigi.Parameter()
 
     def _get_domain(self):
+        """
+        Get domain address from URL
+        :return: pure domain address
+        """
         parsed_url = urlparse(self.url)
         return "://".join([parsed_url.scheme, parsed_url.netloc])
 
     @staticmethod
     def _extract_links(html):
+        """
+        Scrap links from html. Check each a-tag and get only with href-attribute
+        :param html: response from GET-request
+        :return: List of links
+        """
         soup = bs4.BeautifulSoup(html, features="html5lib")
         return list([link["href"].strip() for link in soup.findAll("a") if link.get("href")])
 
     def main(self, sc, *args):
+        """
+        Get page via URL, extract links from it and save it as parquet file in HDFS.
+        """
         try:
             request = Request(self.url)
             html = urlopen(request)
@@ -39,4 +55,9 @@ class ExtractingTask(PySparkTask):
             df.write.parquet(self.output().path)
 
     def output(self):
-        return HdfsTarget(f"/tmp/extracted/{self.url.replace('/', '-').replace(':', '')}.parquet")
+        """
+        Save each result  as file named with URL.
+        :return: HDFS target for new task.
+        """
+        return HdfsTarget(f"/tmp/extracted/{self.url.replace('://', '-')}.parquet")
+

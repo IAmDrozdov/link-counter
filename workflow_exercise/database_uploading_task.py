@@ -6,8 +6,10 @@ from saving_task import SavingTask
 
 
 class DatabaseUploadingTask(PySparkTask):
+    """
+    Task for passing data from HDFS to MySQL database
+    """
     urls = luigi.ListParameter()
-
     db_host = luigi.Parameter()
 
     def requires(self):
