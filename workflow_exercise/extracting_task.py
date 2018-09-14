@@ -59,5 +59,4 @@ class ExtractingTask(PySparkTask):
         Save each result  as file named with URL.
         :return: HDFS target for new task.
         """
-        return HdfsTarget(f"/tmp/extracted/{self.url.replace('://', '-')}.parquet")
-
+        return HdfsTarget(f"hdfs://localhost:9000/tmp/extracted/{self.url.replace('://', '-')}.parquet")

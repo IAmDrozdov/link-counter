@@ -1,4 +1,3 @@
-import datetime
 import hashlib
 
 import luigi
@@ -28,7 +27,7 @@ class SavingTask(PySparkTask):
         of occurrences of each link and save in back to HDFS.
         """
         sql_context = SQLContext(sc)
-        parquets = ["/tmp/extracted/"+parquet.path for parquet in self.input()]
+        parquets = ["/tmp/extracted/" + parquet.path for parquet in self.input()]
         df = sql_context.read.parquet(*parquets)
 
         df \
@@ -45,4 +44,4 @@ class SavingTask(PySparkTask):
         for url in sorted(self.urls):
             hasher.update(url.encode())
         dir_id = hasher.hexdigest()
-        return HdfsTarget(f"/tmp/saved/{dir_id}.parquet")
+        return HdfsTarget(f"hdfs://localhost:9000/tmp/saved/{dir_id}.parquet")
