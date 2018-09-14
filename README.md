@@ -20,8 +20,8 @@ Dependencies
 
 In this application using own MySQL configuration with:
 
-- username = mysqluser
-- password = mysqlpassword
+- username = linker
+- password = linkerpassword
 - root name = root
 - root password = password
 - Database schema locating in db/init.sql.

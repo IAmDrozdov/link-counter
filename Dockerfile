@@ -62,6 +62,7 @@ COPY jars/* $SPARK_HOME/jars
 
 ENV PATH=$SPARK_HOME/bin:$PATH
 ENV PYSPARK_PYTHON=python3
+
 EXPOSE 9870 9000 8088 8025 8030 8050
-WORKDIR /
-ENTRYPOINT ["python3", "workflow_exercise/src/testing.py"]
+
+ENTRYPOINT ["python3", "src/__main__.py"]

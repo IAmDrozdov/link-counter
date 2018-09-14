@@ -18,9 +18,9 @@ class DatabaseUploadingTask(PySparkTask):
     def main(self, sc, *args):
         sql_context = SQLContext(sc)
         df = sql_context.read.parquet(self.input().path)
-        df.write.jdbc(url=f"jdbc:mysql://{self.db_host}:3306/links",
+        df.write.jdbc(url=f"jdbc:mysql://{self.db_host}:3306/links?useSSL=false",
                       table="links",
-                      properties={"user": "mysqluser",
-                                  "password": "mysqlpassword",
+                      properties={"user": "linker",
+                                  "password": "linkerpassword",
                                   "driver": "com.mysql.cj.jdbc.Driver"},
                       mode="append")

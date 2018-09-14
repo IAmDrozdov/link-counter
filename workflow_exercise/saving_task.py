@@ -42,7 +42,7 @@ class SavingTask(PySparkTask):
         :return: HDFS target for next task
         """
         hasher = hashlib.sha1()
-        for url in self.urls:
+        for url in sorted(self.urls):
             hasher.update(url.encode())
         dir_id = hasher.hexdigest()
         return HdfsTarget(f"/tmp/saved/{dir_id}.parquet")
