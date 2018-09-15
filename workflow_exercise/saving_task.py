@@ -1,7 +1,7 @@
 import hashlib
 
 import luigi
-from extraction_task import ExtractingTask
+from extracting_task import ExtractingTask
 from luigi.contrib.hdfs import HdfsTarget
 from luigi.contrib.spark import PySparkTask
 from pyspark import SQLContext
@@ -27,7 +27,7 @@ class SavingTask(PySparkTask):
         of occurrences of each link and save in back to HDFS.
         """
         sql_context = SQLContext(sc)
-        parquets = ["/tmp/extracted/" + parquet.path for parquet in self.input()]
+        parquets = [parquet.path for parquet in self.input()]
         df = sql_context.read.parquet(*parquets)
 
         df \
