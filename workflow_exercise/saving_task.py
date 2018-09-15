@@ -21,14 +21,17 @@ class SavingTask(PySparkTask):
         """
         return [ExtractingTask(url=url) for url in self.urls]
 
+    def read_data(self, sql_context):
+        parquets = [parquet.path for parquet in self.input()]
+        return sql_context.read.parquet(*parquets)
+
     def main(self, sc, *args):
         """
         Get all files from ExtractionTask output count the number
         of occurrences of each link and save in back to HDFS.
         """
         sql_context = SQLContext(sc)
-        parquets = [parquet.path for parquet in self.input()]
-        df = sql_context.read.parquet(*parquets)
+        df = self.read_data(sql_context)
 
         df \
             .groupBy("url") \

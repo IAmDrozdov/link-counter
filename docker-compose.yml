@@ -18,8 +18,8 @@ services:
     command: mysqld --init-file="/db/init.sql"
     environment:
       MYSQL_DATABASE: links
-      MYSQL_USER: mysqluser
-      MYSQL_PASSWORD: mysqlpassword
+      MYSQL_USER: linker
+      MYSQL_PASSWORD: linkerpassword
       MYSQL_ROOT_PASSWORD: password
 
   adminer:

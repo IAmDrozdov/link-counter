@@ -17,7 +17,7 @@ class ExtractingTask(PySparkTask):
     """
     url = luigi.Parameter()
 
-    def _get_domain(self):
+    def get_domain(self):
         """
         Get domain address from URL
         :return: pure domain address
@@ -26,7 +26,7 @@ class ExtractingTask(PySparkTask):
         return "://".join([parsed_url.scheme, parsed_url.netloc])
 
     @staticmethod
-    def _extract_links(html):
+    def extract_links(html):
         """
         Scrap links from html. Check each a-tag and get only with href-attribute
         :param html: response from GET-request
@@ -35,24 +35,37 @@ class ExtractingTask(PySparkTask):
         soup = bs4.BeautifulSoup(html, features="html5lib")
         return list([link["href"].strip() for link in soup.findAll("a") if link.get("href")])
 
+    def _get_html(self):
+        """
+        Get html from URL
+        :return: html from URL page
+        """
+        request = Request(self.url)
+        return urlopen(request)
+
+    def write_to_hdfs(self, raw_links, sql_context):
+        """
+        Write list of links to HDFS
+        """
+        domain = self.get_domain()
+        df = sql_context \
+            .createDataFrame(list(map(lambda x: Row(url=f"{domain}{x}" if r"://" not in x else x), raw_links)))
+        df.write.parquet(self.output().path)
+
     def main(self, sc, *args):
         """
         Get page via URL, extract links from it and save it as parquet file in HDFS.
         """
         try:
-            request = Request(self.url)
-            html = urlopen(request)
+            sql_context = SQLContext(sc)
+            html = self._get_html()
         except (ValueError, HTTPError):
             print(f"Broken url {self.url}")
             with self.output().open("w") as f:
                 pass
         else:
-            raw_links = self._extract_links(html)
-            domain = self._get_domain()
-            sql_context = SQLContext(sc)
-            df = sql_context \
-                .createDataFrame(list(map(lambda x: Row(url=f"{domain}{x}" if r"://" not in x else x), raw_links)))
-            df.write.parquet(self.output().path)
+            raw_links = self.extract_links(html)
+            self.write_to_hdfs(raw_links, sql_context)
 
     def output(self):
         """

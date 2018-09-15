@@ -14,9 +14,12 @@ Dependencies
 -
 
 - Python 3.x
+- Java 8
 - Docker 1.17.x
 - Docker-compose 1.22.x
 - Mysql 5.7
+- Hadoop 3.1.1
+- Apache Spark for Hadoop 2.7 and more
 
 In this application using own MySQL configuration with:
 
@@ -28,6 +31,9 @@ In this application using own MySQL configuration with:
  
 But usernames and passwords you can change in in workflow_exercise/database_uploading_task.py.
 
+Setup [Hadoop](https://www.digitalocean.com/community/tutorials/how-to-install-hadoop-in-stand-alone-mode-on-ubuntu-16-04) 
+and [Apache Spark](https://www.tutorialspoint.com/apache_spark/apache_spark_installation.htm).
+
 Running
 -
 
@@ -36,13 +42,15 @@ Running
 - clones repository
 - perform build
 - creates a Docker image
+- run Hadoop
 - launch the application
 
 ```bash
 git clone https://github.com/IAmDrozdov/link-counter.git
 cd link-counter
 docker build -t app .
-docker run app https://google.com
+start-dfs.sh
+docker run --network host app https://google.com
 ```
 **!You can enter arbitrary number of URLs.**
 
@@ -56,7 +64,7 @@ luigid
 ```
 And then:
 ```bash
-docker run app --scheduler centralized https://google.com
+docker run --network host app --scheduler centralized https://google.com
 ```
 Now you can go to <https://localhost:8082> and se visualisation of processing.
 
@@ -64,7 +72,7 @@ Now you can go to <https://localhost:8082> and se visualisation of processing.
 
 ```bash
 docker-compose up
-docker run --network=workflow_exercise_default  app --host compose  https://google.com
+docker run --network workflow_exercise_default  app --host compose  https://google.com
 ```
 There is you can also switch between local and centralized schedulers.
  
@@ -74,7 +82,7 @@ There is you can also switch between local and centralized schedulers.
  When you run ```docker-compose up``` and see ```Error starting userland proxy: listen tcp0.0.0.0:3306: bind: address already in use```.
  Run: 
  ```bash
- sudo service mysql stop
+sudo service mysql stop
 docker-compose down
 docker-compose up
  ```
