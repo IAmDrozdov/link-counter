@@ -2,8 +2,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 import bs4
-from pyspark import Row, SparkContext
-from pyspark.sql import SQLContext
+from pyspark import Row
 
 
 class ExtractingService:
@@ -24,10 +23,8 @@ class ExtractingService:
         soup = bs4.BeautifulSoup(response, features="html5lib")
         return list([link["href"].strip() for link in soup.findAll("a") if link.get("href")])
 
-    def write_to_hdfs(self, raw_links):
-        sc = SparkContext(master="local", appName="Service")
-        sql_context = SQLContext(sc)
+    def write_to_hdfs(self, raw_links, sql_context):
         domain = self.get_domain()
         df = sql_context \
             .createDataFrame(list(map(lambda x: Row(url=f"{domain}{x}" if r"://" not in x else x), raw_links)))
-        df.write.mode("overwrite").parquet(self.output_path)
+        df.write.parquet(self.output_path)

@@ -3,6 +3,7 @@ import subprocess
 import unittest
 from urllib.error import URLError
 
+from pyspark import SparkContext, SQLContext
 from services.extracting_service import ExtractingService
 
 
@@ -10,8 +11,12 @@ class ExtractingTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.url = "http://www.1x1px.me/"
+        cls.url = "http://www.1x1px.me"
+        cls.output_path = f"/tmp/test/{cls.url.replace('://', '-')}.parquet"
         cls.service = ExtractingService(url=cls.url)
+
+        sc = SparkContext(master="local", appName="Service")
+        cls.sql_context = SQLContext(sc)
 
     def test_get_domain(self):
         self.assertEqual(self.service.get_domain(), "http://www.1x1px.me")
@@ -37,16 +42,12 @@ class ExtractingTest(unittest.TestCase):
     def test_write_to_hdfs(self):
         response = self.service.get_response()
         raw_links = self.service.extract_links(response)
-        self.service.write_to_hdfs(raw_links)
+        self.service.write_to_hdfs(raw_links, self.sql_context)
 
-        cmd = f"hdfs dfs -stat /tmp/test/{self.service.url.replace('://', '-')}".split()
+        cmd = f"hdfs dfs -stat {self.output_path}".split()
         self.assertIsNotNone(subprocess.check_output(cmd))
-
-        wrong_cmd = f"hdfs dfs -stat /tmp/t13est/{self.service.url.replace('://', '-')}".split()
-        with self.assertRaises(subprocess.CalledProcessError):
-            subprocess.check_output(wrong_cmd)
 
     @classmethod
     def tearDownClass(cls):
-        cmd = f"hdfs dfs -rm -r /tmp/test/{cls.url.replace('://', '-')}".split()
+        cmd = f"hdfs dfs -rm -r {cls.output_path}".split()
         subprocess.run(cmd)
