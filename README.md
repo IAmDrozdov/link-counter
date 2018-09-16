@@ -76,26 +76,51 @@ docker run --network workflow_exercise_default  app --host compose  https://goog
 ```
 There is you can also switch between local and centralized schedulers.
  
+
+#### Testing
+For testing create database :
+- database name = test_links
+- username = linker
+- password = linkerpassword
+- table = links
+- schema (test_text varchar(255))
+
+Then go to test directory and:
+```python3
+python3 -m unittest -v saving_task_test.py 
+python3 -m unittest -v saving_task_test.py 
+python3 -m unittest -v database_uploading_task_test.py 
+
+```
+
  
- #### Issues
+#### Issues
  
- When you run ```docker-compose up``` and see ```Error starting userland proxy: listen tcp0.0.0.0:3306: bind: address already in use```.
- Run: 
+When you run ```docker-compose up``` and see ```Error starting userland proxy: listen tcp0.0.0.0:3306: bind: address already in use```.
+Run: 
  ```bash
 sudo service mysql stop
 docker-compose down
 docker-compose up
  ```
  
- API
- -
+API
+-
+
+Available only when docker-compose is up.
+
+### Database adminer
+
+Database UI is available at <https://localhost:8080>
+
+### Luigid(task visualisation)
+
+ Available at <https://localhost:8082>
+
+### Hadoop visualization
+
+ Available at <https://localhost:9870>
  
- Available only when docker-compose is up.
- 
- ### Database adminer
- 
- Database UI is available at <https://localhost:8080>
- 
- ### Luigid(task visualisation)
- 
-  Available at <https://localhost:8082>
+### Hadoop clusters
+
+Available at <https://localhost:8088>
