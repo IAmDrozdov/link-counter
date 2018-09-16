@@ -1,4 +1,4 @@
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import urlopen, Request
 

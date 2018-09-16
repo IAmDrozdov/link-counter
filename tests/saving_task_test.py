@@ -6,6 +6,7 @@ from services.saving_service import SavingService
 
 
 class SavingTest(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.urls = ["test_url1", "test_url2"]
