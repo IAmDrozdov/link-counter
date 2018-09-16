@@ -15,12 +15,26 @@ class DatabaseUploadingTask(PySparkTask):
     def requires(self):
         return SavingTask(urls=self.urls)
 
-    def main(self, sc, *args):
-        sql_context = SQLContext(sc)
-        df = sql_context.read.parquet(self.input().path)
+    def read_from_hdfs(self, sql_context):
+        """
+        Read data from HDFS
+        :return: dataframe
+        """
+        return sql_context.read.parquet(self.input().path)
+
+    def write_to_db(self, df):
+        """
+        Write data to MySQL database
+        :param df: dataframe
+        """
         df.write.jdbc(url=f"jdbc:mysql://{self.db_host}:3306/links?useSSL=false",
                       table="links",
                       properties={"user": "linker",
                                   "password": "linkerpassword",
                                   "driver": "com.mysql.cj.jdbc.Driver"},
                       mode="append")
+
+    def main(self, sc, *args):
+        sql_context = SQLContext(sc)
+        df = self.read_from_hdfs(sql_context)
+        self.write_to_db(df)

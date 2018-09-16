@@ -1,4 +1,4 @@
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import urlopen, Request
 
@@ -26,16 +26,16 @@ class ExtractingTask(PySparkTask):
         return "://".join([parsed_url.scheme, parsed_url.netloc])
 
     @staticmethod
-    def extract_links(html):
+    def extract_links(response):
         """
         Scrap links from html. Check each a-tag and get only with href-attribute
-        :param html: response from GET-request
+        :param response: response from GET-request
         :return: List of links
         """
-        soup = bs4.BeautifulSoup(html, features="html5lib")
+        soup = bs4.BeautifulSoup(response, features="html5lib")
         return list([link["href"].strip() for link in soup.findAll("a") if link.get("href")])
 
-    def _get_html(self):
+    def get_response(self):
         """
         Get html from URL
         :return: html from URL page
@@ -53,18 +53,13 @@ class ExtractingTask(PySparkTask):
         df.write.parquet(self.output().path)
 
     def main(self, sc, *args):
-        """
-        Get page via URL, extract links from it and save it as parquet file in HDFS.
-        """
         try:
             sql_context = SQLContext(sc)
-            html = self._get_html()
-        except (ValueError, HTTPError):
+            response = self.get_response()
+        except (ValueError, URLError):
             print(f"Broken url {self.url}")
-            with self.output().open("w") as f:
-                pass
         else:
-            raw_links = self.extract_links(html)
+            raw_links = self.extract_links(response)
             self.write_to_hdfs(raw_links, sql_context)
 
     def output(self):
